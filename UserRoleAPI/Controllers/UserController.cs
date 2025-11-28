@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using UserRoleAPI.Models;
 using UserRoleAPI.Models.Dtos;
 
@@ -70,6 +71,26 @@ namespace UserRoleAPI.Controllers
                 return StatusCode(400, new { message = ex.Message });
             }
         }
-
+        [HttpPut]
+        public async Task<ActionResult> UpdateUser(Guid id,UpdateUserDto updateUserDto)
+        {
+            try
+            {
+                var user = await _context.users.FirstOrDefaultAsync(u => u.Id == id);
+                if (user != null)
+                {
+                    user.Name = updateUserDto.Name;
+                    user.Email = updateUserDto.Email;
+                    user.Password = updateUserDto.Password;
+                    await _context.SaveChangesAsync();
+                    return Ok(new { message = "User updated successfully", result = user });
+                }
+                return NotFound(new { message = "User not found" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400, new { message = ex.Message });
+            }
+        }
     }
 }
